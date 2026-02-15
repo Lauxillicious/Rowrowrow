@@ -53,11 +53,17 @@
             border-radius: 10px;
             font-size: 0.9em;
             margin-top: 10px;
+            transition: all 0.3s;
         }
 
         .sync-status.online {
             background: #d4edda;
             color: #155724;
+        }
+
+        .sync-status.syncing {
+            background: #fff3cd;
+            color: #856404;
         }
 
         .sync-dot {
@@ -66,6 +72,11 @@
             border-radius: 50%;
             background: #28a745;
             animation: pulse 2s infinite;
+        }
+
+        .sync-dot.syncing {
+            background: #ffc107;
+            animation: pulse 0.8s infinite;
         }
 
         @keyframes pulse {
@@ -155,6 +166,10 @@
             border-radius: 10px;
             font-size: 1em;
             transition: border 0.3s;
+        }
+
+        input[type="date"] {
+            padding: 11px 12px; /* Slightly less padding to account for browser date picker */
         }
 
         input:focus, select:focus {
@@ -406,6 +421,25 @@
             }
         }
 
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -535,81 +569,63 @@
 </head>
 <body>
     <div id="setupScreen" class="setup-container">
-        <h1 style="text-align: center; color: #667eea; margin-bottom: 20px;">🚣 Firebase Setup</h1>
+        <h1 style="text-align: center; color: #667eea; margin-bottom: 20px;">🚣 Firebase Setup erforderlich</h1>
         
         <div class="warning-box">
-            <strong>⚠️ Wichtig:</strong> Um die App zu nutzen, musst du zuerst deine Firebase-Konfiguration eingeben.
+            <strong>⚠️ Achtung:</strong> Die Firebase-Konfiguration ist noch nicht eingetragen!
         </div>
 
         <div class="setup-step">
-            <h3>Schritt 1: Firebase Projekt erstellen</h3>
-            <p>1. Gehe zu <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></p>
-            <p>2. Klicke auf "Projekt hinzufügen"</p>
-            <p>3. Name: "Ruder-Challenge" (oder ein beliebiger Name)</p>
-            <p>4. Google Analytics kannst du deaktivieren</p>
-        </div>
-
-        <div class="setup-step">
-            <h3>Schritt 2: Realtime Database aktivieren</h3>
-            <p>1. Im linken Menü: "Build" → "Realtime Database"</p>
-            <p>2. Klicke auf "Datenbank erstellen"</p>
-            <p>3. Wähle einen Standort (europe-west1 für Europa)</p>
-            <p>4. Starte im <strong>Testmodus</strong> (für den Anfang)</p>
-        </div>
-
-        <div class="setup-step">
-            <h3>Schritt 3: Konfiguration kopieren</h3>
-            <p>1. Gehe zu Projekteinstellungen (Zahnrad-Symbol oben links)</p>
-            <p>2. Scrolle runter zu "Ihre Apps"</p>
-            <p>3. Klicke auf das Web-Symbol <code>&lt;/&gt;</code></p>
-            <p>4. App-Name: "Ruder-Challenge-Web"</p>
-            <p>5. Kopiere die Konfigurationsdaten</p>
-        </div>
-
-        <div class="setup-step">
-            <h3>Schritt 4: Konfiguration hier eingeben</h3>
-            <div class="input-group">
-                <label>API Key:</label>
-                <input type="text" id="apiKey" placeholder="AIzaSy...">
-            </div>
-            <div class="input-group">
-                <label>Auth Domain:</label>
-                <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
-            </div>
-            <div class="input-group">
-                <label>Database URL:</label>
-                <input type="text" id="databaseURL" placeholder="https://your-project.firebaseio.com">
-            </div>
-            <div class="input-group">
-                <label>Project ID:</label>
-                <input type="text" id="projectId" placeholder="your-project">
-            </div>
-            <div class="input-group">
-                <label>Storage Bucket:</label>
-                <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
-            </div>
-            <div class="input-group">
-                <label>Messaging Sender ID:</label>
-                <input type="text" id="messagingSenderId" placeholder="123456789">
-            </div>
-            <div class="input-group">
-                <label>App ID:</label>
-                <input type="text" id="appId" placeholder="1:123456789:web:...">
-            </div>
+            <h3>📋 Anleitung für den Administrator:</h3>
+            <p>Die Firebase-Konfiguration muss <strong>einmalig im Code</strong> hinterlegt werden.</p>
             
-            <button onclick="saveFirebaseConfig()">Konfiguration speichern & App starten</button>
+            <ol style="line-height: 1.8; margin: 20px 0;">
+                <li><strong>Firebase Projekt erstellen</strong> (falls noch nicht geschehen)
+                    <br>→ <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a>
+                </li>
+                <li><strong>Realtime Database aktivieren</strong>
+                    <br>→ Build → Realtime Database → Datenbank erstellen
+                </li>
+                <li><strong>Konfigurationsdaten kopieren</strong>
+                    <br>→ Projekteinstellungen (Zahnrad) → Scrolle zu "Ihre Apps" → Web App hinzufügen
+                </li>
+                <li><strong>Code bearbeiten</strong>
+                    <br>→ Öffne die <code>index.html</code> Datei in einem Texteditor
+                    <br>→ Suche nach: <code>FIREBASE_CONFIG</code>
+                    <br>→ Ersetze die Platzhalter mit deinen echten Werten
+                </li>
+                <li><strong>Änderungen hochladen</strong>
+                    <br>→ Speichere die Datei
+                    <br>→ Push zu GitHub (oder Firebase Hosting)
+                </li>
+            </ol>
         </div>
 
         <div class="setup-step">
-            <h3>💡 Tipp: Sicherheitsregeln anpassen (später)</h3>
-            <p>Nach dem ersten Test solltest du die Sicherheitsregeln anpassen:</p>
-            <div class="code-block">{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}</div>
-            <p><small>⚠️ Diese Regeln erlauben jedem Zugriff. Später kannst du Authentifizierung hinzufügen.</small></p>
+            <h3>💡 Beispiel:</h3>
+            <div class="code-block">const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXX",
+    authDomain: "ruder-challenge-xxxxx.firebaseapp.com",
+    databaseURL: "https://ruder-challenge-xxxxx.firebaseio.com",
+    projectId: "ruder-challenge-xxxxx",
+    storageBucket: "ruder-challenge-xxxxx.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:xxxxxxxxxxxx"
+};</div>
+        </div>
+
+        <div class="setup-step">
+            <h3>✅ Vorteile dieser Methode:</h3>
+            <ul style="line-height: 1.8; margin: 10px 0;">
+                <li>✓ Nur einmal konfigurieren (als Admin)</li>
+                <li>✓ Alle Nutzer können direkt loslegen</li>
+                <li>✓ Keine wiederholte Eingabe nötig</li>
+                <li>✓ Einfacher für deine Freunde</li>
+            </ul>
+        </div>
+
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 10px; margin-top: 20px;">
+            <p style="margin: 0;"><strong>💬 Hinweis:</strong> Diese Seite erscheint nur, solange die Konfiguration nicht eingetragen ist. Sobald die Werte im Code stehen, sehen alle Nutzer direkt die App!</p>
         </div>
     </div>
 
@@ -617,9 +633,9 @@
         <div class="header">
             <h1>🚣 Ruder-Challenge Tracker</h1>
             <p>Gemeinsam zu neuen Ufern!</p>
-            <div class="sync-status online">
-                <span class="sync-dot"></span>
-                <span>Live synchronisiert</span>
+            <div class="sync-status online" id="syncStatus">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">Live synchronisiert</span>
             </div>
             <div class="goal-display">
                 <div class="goal-box" id="goalDisplay">Team-Ziel: 90 km im Monat</div>
@@ -646,6 +662,10 @@
                 <select id="playerSelect">
                     <option value="">Wähle deinen Namen...</option>
                 </select>
+            </div>
+            <div class="input-group">
+                <label for="dateInput">Datum des Trainings:</label>
+                <input type="date" id="dateInput" value="">
             </div>
             <div class="input-group">
                 <label for="distanceInput">Geruderte Meter:</label>
@@ -711,6 +731,18 @@
     </div>
 
     <script>
+        // ⚠️ FIREBASE KONFIGURATION ⚠️
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCgaBNu1lDC9XupNGzXBb7kdlu4QWoSgNs",
+            authDomain: "rowrowrow-f2b0a.firebaseapp.com",
+            databaseURL: "https://rowrowrow-f2b0a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "rowrowrow-f2b0a",
+            storageBucket: "rowrowrow-f2b0a.firebasestorage.app",
+            messagingSenderId: "216934762495",
+            appId: "1:216934762495:web:3cc9b947d39a95d25ec9ca",
+            measurementId: "G-1WH6VWM5V8"
+        };
+        
         // Firebase configuration
         let firebaseApp = null;
         let database = null;
@@ -740,60 +772,48 @@
 
         let tempPlayerName = '';
         let selectedColor = '';
+        let currentTab = 'entry'; // Track current tab
 
-        // Check if Firebase config exists in localStorage
-        function checkFirebaseConfig() {
-            const config = localStorage.getItem('firebaseConfig');
-            if (config) {
-                try {
-                    const parsedConfig = JSON.parse(config);
-                    initializeFirebase(parsedConfig);
-                    document.getElementById('setupScreen').style.display = 'none';
-                    document.getElementById('appContainer').style.display = 'block';
-                    return true;
-                } catch (error) {
-                    console.error('Error parsing Firebase config:', error);
-                    return false;
-                }
-            }
-            return false;
+        // Check if Firebase config is set
+        function isFirebaseConfigured() {
+            return FIREBASE_CONFIG.apiKey !== "DEIN_API_KEY_HIER" &&
+                   FIREBASE_CONFIG.databaseURL !== "DEINE_DATABASE_URL_HIER";
         }
 
-        function saveFirebaseConfig() {
-            const config = {
-                apiKey: document.getElementById('apiKey').value.trim(),
-                authDomain: document.getElementById('authDomain').value.trim(),
-                databaseURL: document.getElementById('databaseURL').value.trim(),
-                projectId: document.getElementById('projectId').value.trim(),
-                storageBucket: document.getElementById('storageBucket').value.trim(),
-                messagingSenderId: document.getElementById('messagingSenderId').value.trim(),
-                appId: document.getElementById('appId').value.trim()
-            };
-
-            // Validate
-            if (!config.apiKey || !config.databaseURL || !config.projectId) {
-                alert('Bitte fülle mindestens API Key, Database URL und Project ID aus!');
+        function initializeApp() {
+            // Check if configuration is set
+            if (!isFirebaseConfigured()) {
+                document.getElementById('setupScreen').style.display = 'block';
+                document.getElementById('appContainer').style.display = 'none';
                 return;
             }
 
-            localStorage.setItem('firebaseConfig', JSON.stringify(config));
-            initializeFirebase(config);
-            document.getElementById('setupScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-        }
-
-        function initializeFirebase(config) {
+            // Initialize Firebase directly
             try {
-                firebaseApp = firebase.initializeApp(config);
+                firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
                 database = firebase.database();
+                document.getElementById('setupScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
                 loadDataFromFirebase();
+                setTodayDate(); // Set today's date in the date input
             } catch (error) {
                 console.error('Firebase initialization error:', error);
-                alert('Firebase Initialisierung fehlgeschlagen. Bitte überprüfe deine Konfiguration.');
-                localStorage.removeItem('firebaseConfig');
-                location.reload();
+                alert('Firebase Konfiguration fehlerhaft. Bitte überprüfe die Werte im Code.');
             }
         }
+
+        function setTodayDate() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
+            }
+        }
+
+        let isInitialLoad = true;
 
         function loadDataFromFirebase() {
             const dataRef = database.ref('challengeData');
@@ -821,19 +841,88 @@
                         monthStart: new Date().toISOString()
                     };
                     saveDataToFirebase();
+                    isInitialLoad = false;
+                    updatePlayerSelect();
+                    updateAllViews();
+                    return;
                 }
                 
+                // Update UI
                 updatePlayerSelect();
                 updateAllViews();
+                
+                // Show notification for updates (except on initial load)
+                if (!isInitialLoad) {
+                    showSyncNotification('Daten aktualisiert! 🔄');
+                }
+                isInitialLoad = false;
             });
+        }
+
+        function showSyncNotification(message) {
+            // Create a subtle sync notification
+            const notification = document.createElement('div');
+            notification.className = 'sync-notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #43e97b, #38f9d7);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 0.9em;
+                animation: fadeInOut 2s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
         }
 
         function saveDataToFirebase() {
             if (!database) return;
+            
+            // Show syncing status
+            const syncStatus = document.getElementById('syncStatus');
+            const syncDot = document.getElementById('syncDot');
+            const syncText = document.getElementById('syncText');
+            
+            if (syncStatus) {
+                syncStatus.classList.remove('online');
+                syncStatus.classList.add('syncing');
+                syncDot.classList.add('syncing');
+                syncText.textContent = 'Speichert...';
+            }
+            
             database.ref('challengeData').set(appData)
+                .then(() => {
+                    // Reset sync status
+                    if (syncStatus) {
+                        setTimeout(() => {
+                            syncStatus.classList.remove('syncing');
+                            syncStatus.classList.add('online');
+                            syncDot.classList.remove('syncing');
+                            syncText.textContent = 'Live synchronisiert';
+                        }, 500);
+                    }
+                })
                 .catch(error => {
                     console.error('Error saving to Firebase:', error);
                     showNotification('Fehler beim Speichern! ⚠️');
+                    
+                    // Reset sync status
+                    if (syncStatus) {
+                        syncStatus.classList.remove('syncing');
+                        syncStatus.classList.add('online');
+                        syncDot.classList.remove('syncing');
+                        syncText.textContent = 'Live synchronisiert';
+                    }
                 });
         }
 
@@ -848,12 +937,19 @@
         function addDistance() {
             const playerSelect = document.getElementById('playerSelect');
             const distanceInput = document.getElementById('distanceInput');
+            const dateInput = document.getElementById('dateInput');
             
             const player = playerSelect.value;
             const distance = parseInt(distanceInput.value);
+            const selectedDate = dateInput.value;
             
             if (!player) {
                 showNotification('Bitte wähle deinen Namen!');
+                return;
+            }
+            
+            if (!selectedDate) {
+                showNotification('Bitte wähle ein Datum!');
                 return;
             }
             
@@ -862,10 +958,13 @@
                 return;
             }
             
+            // Create ISO date string from selected date (at noon to avoid timezone issues)
+            const dateObj = new Date(selectedDate + 'T12:00:00');
+            
             const entry = {
                 player: player,
                 distance: distance,
-                date: new Date().toISOString(),
+                date: dateObj.toISOString(),
                 timestamp: Date.now()
             };
             
@@ -873,6 +972,9 @@
             saveDataToFirebase();
             
             distanceInput.value = '';
+            // Reset date to today
+            setTodayDate();
+            
             showNotification(`${distance}m erfolgreich eingetragen! 🎉`);
         }
 
@@ -1196,26 +1298,61 @@
         }
 
         function showTab(tabName) {
+            currentTab = tabName; // Remember current tab
+            
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
+            // Find and activate the clicked tab button
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes(getTabIcon(tabName))) {
+                    tab.classList.add('active');
+                }
+            });
+            
             document.getElementById(tabName).classList.add('active');
             
             if (tabName === 'settings') updatePlayersList();
+        }
+
+        function getTabIcon(tabName) {
+            const icons = {
+                'entry': '📝',
+                'leaderboard': '🏆',
+                'settings': '⚙️'
+            };
+            return icons[tabName] || '';
         }
 
         function updateAllViews() {
             updateLeaderboard();
             updateRecentEntries();
             updateTimeRemaining();
+            
+            // Maintain current tab after update
+            if (currentTab === 'settings') {
+                updatePlayersList();
+            }
+            
+            // Re-activate current tab in case it got deactivated
+            const currentContent = document.getElementById(currentTab);
+            if (currentContent && !currentContent.classList.contains('active')) {
+                document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+                currentContent.classList.add('active');
+                
+                // Re-activate tab button
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.textContent.includes(getTabIcon(currentTab))) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
         }
 
         // Initialize
-        if (!checkFirebaseConfig()) {
-            document.getElementById('setupScreen').style.display = 'block';
-        }
-        
+        initializeApp();
         setInterval(updateTimeRemaining, 60000);
     </script>
 </body>
