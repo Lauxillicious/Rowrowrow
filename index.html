@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruder-Challenge Tracker 🚣</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -37,6 +42,35 @@
             color: #667eea;
             font-size: 2.5em;
             margin-bottom: 10px;
+        }
+
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .sync-status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .goal-display {
@@ -146,6 +180,11 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .leaderboard {
             margin-top: 30px;
         }
@@ -227,132 +266,6 @@
             font-size: 0.9em;
         }
 
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .achievement {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-
-        .achievement.unlocked {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .achievement-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .achievement-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .achievement-desc {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        .challenge-card {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .challenge-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .challenge-progress {
-            background: rgba(255,255,255,0.3);
-            height: 25px;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-
-        .challenge-progress-fill {
-            background: white;
-            height: 100%;
-            transition: width 0.5s;
-        }
-
-        .history-list {
-            margin-top: 20px;
-        }
-
-        .history-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .settings-section {
-            margin-bottom: 30px;
-        }
-
-        .settings-section h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .player-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .delete-btn {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background 0.2s;
-        }
-
-        .delete-btn:hover {
-            background: #ff5252;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            z-index: 1000;
-            animation: slideIn 0.5s ease;
-            max-width: 300px;
-        }
-
         .contribution-bar-container {
             display: flex;
             width: 100%;
@@ -414,6 +327,20 @@
             color: #666;
         }
 
+        .history-list {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .color-picker-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -431,6 +358,7 @@
             align-items: center;
             justify-content: center;
             font-size: 2em;
+            position: relative;
         }
 
         .color-option:hover {
@@ -453,54 +381,29 @@
             font-weight: bold;
         }
 
-        .month-selector {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .month-nav-btn {
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: transform 0.2s;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            max-width: 300px;
         }
 
-        .month-nav-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .month-nav-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .month-display {
-            flex: 1;
-            text-align: center;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .history-badge {
-            background: #f0f0f0;
-            color: #666;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: bold;
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         .modal {
@@ -551,53 +454,66 @@
             justify-content: center;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .player-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .badge-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .setup-container {
+            max-width: 600px;
+            margin: 50px auto;
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            z-index: 2000;
-            text-align: center;
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
 
-        .badge-popup.show {
-            transform: translate(-50%, -50%) scale(1);
+        .setup-step {
+            margin-bottom: 30px;
         }
 
-        .badge-popup-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
+        .setup-step h3 {
+            color: #667eea;
+            margin-bottom: 10px;
         }
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1999;
-            display: none;
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 10px 0;
         }
 
-        .overlay.show {
-            display: block;
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
         }
 
         @media (max-width: 768px) {
@@ -618,10 +534,93 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="setupScreen" class="setup-container">
+        <h1 style="text-align: center; color: #667eea; margin-bottom: 20px;">🚣 Firebase Setup</h1>
+        
+        <div class="warning-box">
+            <strong>⚠️ Wichtig:</strong> Um die App zu nutzen, musst du zuerst deine Firebase-Konfiguration eingeben.
+        </div>
+
+        <div class="setup-step">
+            <h3>Schritt 1: Firebase Projekt erstellen</h3>
+            <p>1. Gehe zu <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></p>
+            <p>2. Klicke auf "Projekt hinzufügen"</p>
+            <p>3. Name: "Ruder-Challenge" (oder ein beliebiger Name)</p>
+            <p>4. Google Analytics kannst du deaktivieren</p>
+        </div>
+
+        <div class="setup-step">
+            <h3>Schritt 2: Realtime Database aktivieren</h3>
+            <p>1. Im linken Menü: "Build" → "Realtime Database"</p>
+            <p>2. Klicke auf "Datenbank erstellen"</p>
+            <p>3. Wähle einen Standort (europe-west1 für Europa)</p>
+            <p>4. Starte im <strong>Testmodus</strong> (für den Anfang)</p>
+        </div>
+
+        <div class="setup-step">
+            <h3>Schritt 3: Konfiguration kopieren</h3>
+            <p>1. Gehe zu Projekteinstellungen (Zahnrad-Symbol oben links)</p>
+            <p>2. Scrolle runter zu "Ihre Apps"</p>
+            <p>3. Klicke auf das Web-Symbol <code>&lt;/&gt;</code></p>
+            <p>4. App-Name: "Ruder-Challenge-Web"</p>
+            <p>5. Kopiere die Konfigurationsdaten</p>
+        </div>
+
+        <div class="setup-step">
+            <h3>Schritt 4: Konfiguration hier eingeben</h3>
+            <div class="input-group">
+                <label>API Key:</label>
+                <input type="text" id="apiKey" placeholder="AIzaSy...">
+            </div>
+            <div class="input-group">
+                <label>Auth Domain:</label>
+                <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
+            </div>
+            <div class="input-group">
+                <label>Database URL:</label>
+                <input type="text" id="databaseURL" placeholder="https://your-project.firebaseio.com">
+            </div>
+            <div class="input-group">
+                <label>Project ID:</label>
+                <input type="text" id="projectId" placeholder="your-project">
+            </div>
+            <div class="input-group">
+                <label>Storage Bucket:</label>
+                <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
+            </div>
+            <div class="input-group">
+                <label>Messaging Sender ID:</label>
+                <input type="text" id="messagingSenderId" placeholder="123456789">
+            </div>
+            <div class="input-group">
+                <label>App ID:</label>
+                <input type="text" id="appId" placeholder="1:123456789:web:...">
+            </div>
+            
+            <button onclick="saveFirebaseConfig()">Konfiguration speichern & App starten</button>
+        </div>
+
+        <div class="setup-step">
+            <h3>💡 Tipp: Sicherheitsregeln anpassen (später)</h3>
+            <p>Nach dem ersten Test solltest du die Sicherheitsregeln anpassen:</p>
+            <div class="code-block">{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}</div>
+            <p><small>⚠️ Diese Regeln erlauben jedem Zugriff. Später kannst du Authentifizierung hinzufügen.</small></p>
+        </div>
+    </div>
+
+    <div id="appContainer" class="container" style="display: none;">
         <div class="header">
             <h1>🚣 Ruder-Challenge Tracker</h1>
             <p>Gemeinsam zu neuen Ufern!</p>
+            <div class="sync-status online">
+                <span class="sync-dot"></span>
+                <span>Live synchronisiert</span>
+            </div>
             <div class="goal-display">
                 <div class="goal-box" id="goalDisplay">Team-Ziel: 90 km im Monat</div>
                 <div class="time-remaining" id="timeRemaining">Lade...</div>
@@ -637,9 +636,6 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('entry')">📝 Eintragen</button>
             <button class="tab" onclick="showTab('leaderboard')">🏆 Rangliste</button>
-            <button class="tab" onclick="showTab('achievements')">🎖️ Erfolge</button>
-            <button class="tab" onclick="showTab('challenges')">⚡ Challenges</button>
-            <button class="tab" onclick="showTab('history')">📅 Archiv</button>
             <button class="tab" onclick="showTab('settings')">⚙️ Einstellungen</button>
         </div>
 
@@ -671,38 +667,9 @@
             <div class="leaderboard" id="leaderboardContent"></div>
         </div>
 
-        <div id="achievements" class="content">
-            <h2>🎖️ Deine Erfolge</h2>
-            <p>Schalte Abzeichen frei, indem du verschiedene Meilensteine erreichst!</p>
-            <div class="achievements-grid" id="achievementsGrid"></div>
-        </div>
-
-        <div id="challenges" class="content">
-            <h2>⚡ Wöchentliche Challenges</h2>
-            <p>Zusätzliche Herausforderungen für Extra-Motivation!</p>
-            <div id="challengesContent"></div>
-        </div>
-
-        <div id="history" class="content">
-            <h2>📅 Monatsarchiv</h2>
-            <p>Schaue dir vergangene Monate an und vergleiche die Ergebnisse!</p>
-            
-            <div class="month-selector">
-                <button class="month-nav-btn" id="prevMonthBtn" onclick="navigateMonth(-1)">◀ Vorheriger</button>
-                <div class="month-display" id="currentMonthDisplay">Aktueller Monat</div>
-                <button class="month-nav-btn" id="nextMonthBtn" onclick="navigateMonth(1)">Nächster ▶</button>
-            </div>
-
-            <div id="historyContent">
-                <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; text-align: center;">
-                    <p style="color: #666; font-size: 1.1em;">Wähle einen Monat aus dem Archiv</p>
-                </div>
-            </div>
-        </div>
-
         <div id="settings" class="content">
-            <div class="settings-section">
-                <h3>Challenge-Einstellungen</h3>
+            <div class="settings-section" style="margin-bottom: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Challenge-Einstellungen</h3>
                 <div class="input-group">
                     <label for="goalInput">Gemeinsames Team-Ziel pro Monat (km):</label>
                     <input type="number" id="goalInput" value="90" min="1" step="5">
@@ -713,8 +680,8 @@
                 <button onclick="updateGoal()">Ziel aktualisieren</button>
             </div>
 
-            <div class="settings-section">
-                <h3>Teilnehmer verwalten</h3>
+            <div class="settings-section" style="margin-bottom: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Teilnehmer verwalten</h3>
                 <div class="input-group">
                     <label for="newPlayerInput">Neuen Teilnehmer hinzufügen:</label>
                     <input type="text" id="newPlayerInput" placeholder="Name eingeben">
@@ -724,19 +691,11 @@
             </div>
 
             <div class="settings-section">
-                <h3>Challenge zurücksetzen</h3>
-                <p style="color: #666; margin-bottom: 15px;">Startet eine neue Challenge und behält die Erfolge.</p>
+                <h3 style="color: #667eea; margin-bottom: 15px;">Challenge zurücksetzen</h3>
+                <p style="color: #666; margin-bottom: 15px;">Startet eine neue Challenge. Alle Daten werden gelöscht!</p>
                 <button onclick="resetMonth()" style="background: #ff6b6b;">Neuen Monat starten</button>
             </div>
         </div>
-    </div>
-
-    <div class="overlay" id="overlay" onclick="closeBadgePopup()"></div>
-    <div class="badge-popup" id="badgePopup">
-        <div class="badge-popup-icon" id="badgeIcon"></div>
-        <h2 id="badgeTitle"></h2>
-        <p id="badgeDesc"></p>
-        <button onclick="closeBadgePopup()" style="margin-top: 20px;">Weiter 🎉</button>
     </div>
 
     <div class="modal" id="colorPickerModal">
@@ -747,35 +706,15 @@
             </div>
             <p style="color: #666; margin-bottom: 20px;">Diese Farbe wird in allen Diagrammen für dich verwendet.</p>
             <div class="color-picker-container" id="colorPickerContainer"></div>
-            <button onclick="confirmColorSelection()" style="margin-top: 20px;">Farbe speichern</button>
+            <button onclick="confirmColorSelection()">Farbe speichern</button>
         </div>
     </div>
 
     <script>
-        const ACHIEVEMENTS = [
-            { id: 'first_km', icon: '🎯', title: 'Erster Kilometer', desc: 'Erste 1000m gerudert', threshold: 1000 },
-            { id: 'five_km', icon: '🔥', title: '5 km Held', desc: '5 km erreicht', threshold: 5000 },
-            { id: 'ten_km', icon: '💪', title: '10 km Krieger', desc: '10 km geschafft', threshold: 10000 },
-            { id: 'twenty_km', icon: '🌟', title: '20 km Champion', desc: '20 km gemeistert', threshold: 20000 },
-            { id: 'thirty_km', icon: '⚡', title: '30 km Profi', desc: '30 km geknackt', threshold: 30000 },
-            { id: 'half_goal', icon: '🎊', title: 'Halbzeit!', desc: '50% des Ziels erreicht', threshold: 'half' },
-            { id: 'goal_reached', icon: '🏆', title: 'Ziel erreicht!', desc: 'Monatsziel geschafft', threshold: 'goal' },
-            { id: 'streak_3', icon: '🔸', title: '3-Tage-Streak', desc: '3 Tage in Folge gerudert', threshold: 'streak_3' },
-            { id: 'streak_7', icon: '🔶', title: 'Woche voll', desc: '7 Tage in Folge gerudert', threshold: 'streak_7' },
-            { id: 'marathon', icon: '🎖️', title: 'Marathon', desc: '42.195 km erreicht', threshold: 42195 },
-        ];
-
-        let appData = {
-            players: [],
-            playerColors: {}, // Store player colors
-            goal: 90000,
-            entries: [],
-            achievements: {},
-            challenges: [],
-            monthStart: new Date().toISOString(),
-            monthlyHistory: [] // Store completed months
-        };
-
+        // Firebase configuration
+        let firebaseApp = null;
+        let database = null;
+        
         const PRESET_COLORS = [
             { name: 'Lila', value: '#667eea' },
             { name: 'Pink', value: '#f093fb' },
@@ -791,56 +730,111 @@
             { name: 'Smaragd', value: '#00b894' }
         ];
 
-        async function loadData() {
-            try {
-                const result = await window.storage.get('rowing_challenge_data');
-                if (result && result.value) {
-                    appData = JSON.parse(result.value);
-                    
-                    // Ensure new properties exist
-                    if (!appData.playerColors) appData.playerColors = {};
-                    if (!appData.monthlyHistory) appData.monthlyHistory = [];
-                    
-                    // Check if month has changed
-                    const lastMonth = new Date(appData.monthStart).getMonth();
-                    const currentMonth = new Date().getMonth();
-                    const lastYear = new Date(appData.monthStart).getFullYear();
-                    const currentYear = new Date().getFullYear();
-                    
-                    if (lastMonth !== currentMonth || lastYear !== currentYear) {
-                        archiveCurrentMonth();
-                    }
-                } else {
-                    // Initialize with sample players
-                    appData.players = ['Max', 'Anna', 'Tom', 'Lisa'];
-                    appData.players.forEach((player, index) => {
-                        appData.achievements[player] = [];
-                        appData.playerColors[player] = PRESET_COLORS[index % PRESET_COLORS.length].value;
-                    });
-                    await saveData();
+        let appData = {
+            players: [],
+            playerColors: {},
+            goal: 90000,
+            entries: [],
+            monthStart: new Date().toISOString()
+        };
+
+        let tempPlayerName = '';
+        let selectedColor = '';
+
+        // Check if Firebase config exists in localStorage
+        function checkFirebaseConfig() {
+            const config = localStorage.getItem('firebaseConfig');
+            if (config) {
+                try {
+                    const parsedConfig = JSON.parse(config);
+                    initializeFirebase(parsedConfig);
+                    document.getElementById('setupScreen').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+                    return true;
+                } catch (error) {
+                    console.error('Error parsing Firebase config:', error);
+                    return false;
                 }
-            } catch (error) {
-                console.log('Initialisiere neue Challenge...');
-                appData.players = ['Max', 'Anna', 'Tom', 'Lisa'];
-                appData.players.forEach((player, index) => {
-                    appData.achievements[player] = [];
-                    appData.playerColors[player] = PRESET_COLORS[index % PRESET_COLORS.length].value;
-                });
-                await saveData();
             }
-            
-            updatePlayerSelect();
-            generateWeeklyChallenges();
-            updateAllViews();
-            initializeHistory();
+            return false;
         }
 
-        async function saveData() {
-            try {
-                await window.storage.set('rowing_challenge_data', JSON.stringify(appData));
-            } catch (error) {
-                console.error('Fehler beim Speichern:', error);
+        function saveFirebaseConfig() {
+            const config = {
+                apiKey: document.getElementById('apiKey').value.trim(),
+                authDomain: document.getElementById('authDomain').value.trim(),
+                databaseURL: document.getElementById('databaseURL').value.trim(),
+                projectId: document.getElementById('projectId').value.trim(),
+                storageBucket: document.getElementById('storageBucket').value.trim(),
+                messagingSenderId: document.getElementById('messagingSenderId').value.trim(),
+                appId: document.getElementById('appId').value.trim()
+            };
+
+            // Validate
+            if (!config.apiKey || !config.databaseURL || !config.projectId) {
+                alert('Bitte fülle mindestens API Key, Database URL und Project ID aus!');
+                return;
             }
+
+            localStorage.setItem('firebaseConfig', JSON.stringify(config));
+            initializeFirebase(config);
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+
+        function initializeFirebase(config) {
+            try {
+                firebaseApp = firebase.initializeApp(config);
+                database = firebase.database();
+                loadDataFromFirebase();
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                alert('Firebase Initialisierung fehlgeschlagen. Bitte überprüfe deine Konfiguration.');
+                localStorage.removeItem('firebaseConfig');
+                location.reload();
+            }
+        }
+
+        function loadDataFromFirebase() {
+            const dataRef = database.ref('challengeData');
+            
+            dataRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appData = data;
+                    // Ensure arrays exist
+                    if (!appData.players) appData.players = [];
+                    if (!appData.entries) appData.entries = [];
+                    if (!appData.playerColors) appData.playerColors = {};
+                } else {
+                    // Initialize with default data
+                    appData = {
+                        players: ['Max', 'Anna', 'Tom', 'Lisa'],
+                        playerColors: {
+                            'Max': PRESET_COLORS[0].value,
+                            'Anna': PRESET_COLORS[1].value,
+                            'Tom': PRESET_COLORS[2].value,
+                            'Lisa': PRESET_COLORS[3].value
+                        },
+                        goal: 90000,
+                        entries: [],
+                        monthStart: new Date().toISOString()
+                    };
+                    saveDataToFirebase();
+                }
+                
+                updatePlayerSelect();
+                updateAllViews();
+            });
+        }
+
+        function saveDataToFirebase() {
+            if (!database) return;
+            database.ref('challengeData').set(appData)
+                .catch(error => {
+                    console.error('Error saving to Firebase:', error);
+                    showNotification('Fehler beim Speichern! ⚠️');
+                });
         }
 
         function updatePlayerSelect() {
@@ -851,10 +845,38 @@
             });
         }
 
-        let tempPlayerName = '';
-        let selectedColor = '';
+        function addDistance() {
+            const playerSelect = document.getElementById('playerSelect');
+            const distanceInput = document.getElementById('distanceInput');
+            
+            const player = playerSelect.value;
+            const distance = parseInt(distanceInput.value);
+            
+            if (!player) {
+                showNotification('Bitte wähle deinen Namen!');
+                return;
+            }
+            
+            if (!distance || distance <= 0) {
+                showNotification('Bitte gib eine gültige Distanz ein!');
+                return;
+            }
+            
+            const entry = {
+                player: player,
+                distance: distance,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+            
+            appData.entries.push(entry);
+            saveDataToFirebase();
+            
+            distanceInput.value = '';
+            showNotification(`${distance}m erfolgreich eingetragen! 🎉`);
+        }
 
-        async function addPlayer() {
+        function addPlayer() {
             const input = document.getElementById('newPlayerInput');
             const name = input.value.trim();
             
@@ -870,8 +892,6 @@
             
             tempPlayerName = name;
             input.value = '';
-            
-            // Open color picker
             openColorPicker();
         }
 
@@ -908,41 +928,35 @@
             selectedColor = '';
         }
 
-        async function confirmColorSelection() {
+        function confirmColorSelection() {
             if (!tempPlayerName) return;
             
-            appData.players.push(tempPlayerName);
-            appData.achievements[tempPlayerName] = [];
-            appData.playerColors[tempPlayerName] = selectedColor;
-            
-            await saveData();
-            updatePlayerSelect();
-            updatePlayersList();
-            closeColorPicker();
-            showNotification(`${tempPlayerName} wurde hinzugefügt! 🎉`);
-            updateAllViews();
+            if (appData.players.includes(tempPlayerName)) {
+                appData.playerColors[tempPlayerName] = selectedColor;
+                saveDataToFirebase();
+                updatePlayersList();
+                closeColorPicker();
+                showNotification(`Farbe für ${tempPlayerName} aktualisiert! 🎨`);
+            } else {
+                appData.players.push(tempPlayerName);
+                appData.playerColors[tempPlayerName] = selectedColor;
+                saveDataToFirebase();
+                closeColorPicker();
+                showNotification(`${tempPlayerName} wurde hinzugefügt! 🎉`);
+            }
         }
 
-        function updatePlayersList() {
-            const list = document.getElementById('playersList');
-            list.innerHTML = '<h4>Aktuelle Teilnehmer:</h4>';
-            appData.players.forEach(player => {
-                const stats = getPlayerStats(player);
-                const color = appData.playerColors[player] || '#667eea';
-                list.innerHTML += `
-                    <div class="player-item">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 30px; height: 30px; background: ${color}; border-radius: 8px;"></div>
-                            <span><strong>${player}</strong> - ${(stats.total / 1000).toFixed(1)} km</span>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="delete-btn" onclick="changePlayerColor('${player}')" 
-                                    style="background: #667eea; width: auto;">🎨</button>
-                            <button class="delete-btn" onclick="deletePlayer('${player}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
+        function deletePlayer(playerName) {
+            if (!confirm(`Möchtest du ${playerName} wirklich entfernen?`)) {
+                return;
+            }
+            
+            appData.players = appData.players.filter(p => p !== playerName);
+            appData.entries = appData.entries.filter(e => e.player !== playerName);
+            delete appData.playerColors[playerName];
+            
+            saveDataToFirebase();
+            showNotification(`${playerName} wurde entfernt.`);
         }
 
         function changePlayerColor(playerName) {
@@ -969,97 +983,11 @@
             document.getElementById('colorPickerModal').classList.add('show');
         }
 
-        async function confirmColorSelection() {
-            if (!tempPlayerName) return;
-            
-            // If player already exists, just update color
-            if (appData.players.includes(tempPlayerName)) {
-                appData.playerColors[tempPlayerName] = selectedColor;
-                await saveData();
-                updatePlayersList();
-                closeColorPicker();
-                showNotification(`Farbe für ${tempPlayerName} aktualisiert! 🎨`);
-                updateAllViews();
-            } else {
-                // Add new player
-                appData.players.push(tempPlayerName);
-                appData.achievements[tempPlayerName] = [];
-                appData.playerColors[tempPlayerName] = selectedColor;
-                
-                await saveData();
-                updatePlayerSelect();
-                updatePlayersList();
-                closeColorPicker();
-                showNotification(`${tempPlayerName} wurde hinzugefügt! 🎉`);
-                updateAllViews();
-            }
-        }
-
-        async function deletePlayer(playerName) {
-            if (!confirm(`Möchtest du ${playerName} wirklich entfernen? Alle Einträge und Erfolge werden gelöscht.`)) {
-                return;
-            }
-            
-            // Remove player from list
-            appData.players = appData.players.filter(p => p !== playerName);
-            
-            // Remove player's entries
-            appData.entries = appData.entries.filter(e => e.player !== playerName);
-            
-            // Remove player's achievements
-            delete appData.achievements[playerName];
-            
-            // Remove player's color
-            delete appData.playerColors[playerName];
-            
-            await saveData();
-            updatePlayerSelect();
-            updatePlayersList();
-            updateAllViews();
-            showNotification(`${playerName} wurde entfernt.`);
-        }
-
-        async function addDistance() {
-            const playerSelect = document.getElementById('playerSelect');
-            const distanceInput = document.getElementById('distanceInput');
-            
-            const player = playerSelect.value;
-            const distance = parseInt(distanceInput.value);
-            
-            if (!player) {
-                showNotification('Bitte wähle deinen Namen!');
-                return;
-            }
-            
-            if (!distance || distance <= 0) {
-                showNotification('Bitte gib eine gültige Distanz ein!');
-                return;
-            }
-            
-            const entry = {
-                player: player,
-                distance: distance,
-                date: new Date().toISOString(),
-                timestamp: Date.now()
-            };
-            
-            appData.entries.push(entry);
-            await saveData();
-            
-            distanceInput.value = '';
-            
-            checkAchievements(player);
-            updateAllViews();
-            showNotification(`${distance}m erfolgreich eingetragen! 🎉`);
-        }
-
         function getPlayerStats(player) {
             const playerEntries = appData.entries.filter(e => e.player === player);
             const total = playerEntries.reduce((sum, e) => sum + e.distance, 0);
             const sessions = playerEntries.length;
-            const avg = sessions > 0 ? Math.round(total / sessions) : 0;
             
-            // Calculate streak
             const sortedDates = playerEntries
                 .map(e => new Date(e.date).toDateString())
                 .filter((date, index, self) => self.indexOf(date) === index)
@@ -1078,7 +1006,7 @@
                 }
             }
             
-            return { total, sessions, avg, streak };
+            return { total, sessions, streak };
         }
 
         function updateLeaderboard() {
@@ -1091,7 +1019,6 @@
             
             const teamTotal = standings.reduce((sum, p) => sum + p.total, 0);
             
-            // Update contribution chart
             updateContributionChart(standings, teamTotal);
             
             const medals = ['🥇', '🥈', '🥉'];
@@ -1129,9 +1056,8 @@
         function updateContributionChart(standings, teamTotal) {
             const chart = document.getElementById('contributionChart');
             
-            // Create stacked bar chart
             let barHtml = '<div class="contribution-bar-container">';
-            standings.forEach((player, index) => {
+            standings.forEach(player => {
                 const percentage = teamTotal > 0 ? (player.total / teamTotal * 100) : 0;
                 if (percentage > 0) {
                     const color = appData.playerColors[player.player] || '#667eea';
@@ -1146,9 +1072,8 @@
             });
             barHtml += '</div>';
             
-            // Create legend
             barHtml += '<div class="contribution-legend">';
-            standings.forEach((player, index) => {
+            standings.forEach(player => {
                 const percentage = teamTotal > 0 ? (player.total / teamTotal * 100) : 0;
                 const color = appData.playerColors[player.player] || '#667eea';
                 barHtml += `
@@ -1166,111 +1091,12 @@
             chart.innerHTML = barHtml;
         }
 
-        function checkAchievements(player) {
-            const stats = getPlayerStats(player);
-            const playerAchievements = appData.achievements[player] || [];
-            
-            ACHIEVEMENTS.forEach(achievement => {
-                if (playerAchievements.includes(achievement.id)) return;
-                
-                let unlocked = false;
-                
-                if (achievement.threshold === 'half') {
-                    unlocked = stats.total >= appData.goal / 2;
-                } else if (achievement.threshold === 'goal') {
-                    unlocked = stats.total >= appData.goal;
-                } else if (achievement.threshold === 'streak_3') {
-                    unlocked = stats.streak >= 3;
-                } else if (achievement.threshold === 'streak_7') {
-                    unlocked = stats.streak >= 7;
-                } else if (typeof achievement.threshold === 'number') {
-                    unlocked = stats.total >= achievement.threshold;
-                }
-                
-                if (unlocked) {
-                    playerAchievements.push(achievement.id);
-                    appData.achievements[player] = playerAchievements;
-                    showBadgePopup(achievement);
-                    saveData();
-                }
-            });
-        }
-
-        function updateAchievements() {
-            const grid = document.getElementById('achievementsGrid');
-            const player = document.getElementById('playerSelect').value || appData.players[0];
-            const playerAchievements = appData.achievements[player] || [];
-            
-            grid.innerHTML = ACHIEVEMENTS.map(achievement => {
-                const unlocked = playerAchievements.includes(achievement.id);
-                return `
-                    <div class="achievement ${unlocked ? 'unlocked' : ''}">
-                        <div class="achievement-icon">${unlocked ? achievement.icon : '🔒'}</div>
-                        <div class="achievement-title">${achievement.title}</div>
-                        <div class="achievement-desc">${achievement.desc}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function generateWeeklyChallenges() {
-            const weekNumber = Math.floor((Date.now() - new Date(appData.monthStart)) / (7 * 24 * 60 * 60 * 1000));
-            
-            const challenges = [
-                { title: '🎯 Sprint-Woche', desc: 'Rudere 3 Sessions mit je 2000m+', target: 'sprint', progress: 0 },
-                { title: '🔥 Distanz-Challenge', desc: 'Erreiche 15 km diese Woche', target: 15000, progress: 0 },
-                { title: '💪 Täglicher Grind', desc: 'Rudere 5 Tage in dieser Woche', target: 'daily', progress: 0 }
-            ];
-            
-            appData.challenges = [challenges[weekNumber % challenges.length]];
-            updateChallenges();
-        }
-
-        function updateChallenges() {
-            const content = document.getElementById('challengesContent');
-            
-            content.innerHTML = appData.challenges.map(challenge => {
-                let progress = 0;
-                let progressText = '';
-                
-                // Calculate progress based on this week's entries
-                const weekStart = new Date();
-                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-                const weekEntries = appData.entries.filter(e => new Date(e.date) >= weekStart);
-                
-                if (challenge.target === 'sprint') {
-                    const sprints = weekEntries.filter(e => e.distance >= 2000).length;
-                    progress = (sprints / 3) * 100;
-                    progressText = `${sprints} / 3 Sprint-Sessions`;
-                } else if (challenge.target === 'daily') {
-                    const uniqueDays = new Set(weekEntries.map(e => new Date(e.date).toDateString())).size;
-                    progress = (uniqueDays / 5) * 100;
-                    progressText = `${uniqueDays} / 5 Tage`;
-                } else if (typeof challenge.target === 'number') {
-                    const weekTotal = weekEntries.reduce((sum, e) => sum + e.distance, 0);
-                    progress = (weekTotal / challenge.target) * 100;
-                    progressText = `${(weekTotal / 1000).toFixed(1)} / ${(challenge.target / 1000)} km`;
-                }
-                
-                return `
-                    <div class="challenge-card">
-                        <div class="challenge-title">${challenge.title}</div>
-                        <div>${challenge.desc}</div>
-                        <div class="challenge-progress">
-                            <div class="challenge-progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
-                        </div>
-                        <div style="margin-top: 10px; text-align: center;">${progressText}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
         function updateRecentEntries() {
             const container = document.getElementById('recentEntries');
             const recent = appData.entries.slice(-10).reverse();
             
             if (recent.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Noch keine Einträge vorhanden</p>';
+                container.innerHTML = '<h3 style="margin-top: 30px; color: #667eea;">Letzte Einträge</h3><p style="color: #999; text-align: center; padding: 20px;">Noch keine Einträge vorhanden</p>';
                 return;
             }
             
@@ -1296,6 +1122,28 @@
             container.innerHTML = html;
         }
 
+        function updatePlayersList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = '<h4>Aktuelle Teilnehmer:</h4>';
+            appData.players.forEach(player => {
+                const stats = getPlayerStats(player);
+                const color = appData.playerColors[player] || '#667eea';
+                list.innerHTML += `
+                    <div class="player-item">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: ${color}; border-radius: 8px;"></div>
+                            <span><strong>${player}</strong> - ${(stats.total / 1000).toFixed(1)} km</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="delete-btn" onclick="changePlayerColor('${player}')" 
+                                    style="background: #667eea;">🎨</button>
+                            <button class="delete-btn" onclick="deletePlayer('${player}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         function updateTimeRemaining() {
             const now = new Date();
             const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -1304,7 +1152,6 @@
             document.getElementById('timeRemaining').textContent = `⏰ Noch ${daysLeft} Tage`;
             document.getElementById('goalDisplay').textContent = `Team-Ziel: ${appData.goal / 1000} km im Monat`;
             
-            // Update team progress
             const teamTotal = appData.players.reduce((sum, player) => {
                 return sum + getPlayerStats(player).total;
             }, 0);
@@ -1316,182 +1163,24 @@
             document.getElementById('teamProgressBar').textContent = `${teamProgress.toFixed(0)}%`;
         }
 
-        async function updateGoal() {
+        function updateGoal() {
             const newGoal = parseInt(document.getElementById('goalInput').value) * 1000;
             if (newGoal > 0) {
                 appData.goal = newGoal;
-                await saveData();
-                updateAllViews();
+                saveDataToFirebase();
                 showNotification('Ziel aktualisiert! 🎯');
             }
         }
 
-        async function resetMonth() {
-            if (!confirm('Möchtest du wirklich einen neuen Monat starten? Die Erfolge bleiben erhalten, aber alle Einträge werden zurückgesetzt.')) {
+        function resetMonth() {
+            if (!confirm('Möchtest du wirklich alle Daten zurücksetzen?')) {
                 return;
             }
             
-            archiveCurrentMonth();
-            await saveData();
-            updateAllViews();
-            showNotification('Neuer Monat gestartet! Viel Erfolg! 🚀');
-        }
-
-        function archiveCurrentMonth() {
-            // Save current month data to history
-            if (appData.entries.length > 0) {
-                const monthData = {
-                    monthStart: appData.monthStart,
-                    monthEnd: new Date().toISOString(),
-                    goal: appData.goal,
-                    entries: [...appData.entries],
-                    players: [...appData.players],
-                    playerColors: {...appData.playerColors}
-                };
-                appData.monthlyHistory.push(monthData);
-            }
-            
-            resetMonthData();
-        }
-
-        let currentHistoryIndex = -1; // -1 means current month
-
-        function initializeHistory() {
-            currentHistoryIndex = -1;
-            updateHistoryView();
-        }
-
-        function navigateMonth(direction) {
-            const newIndex = currentHistoryIndex + direction;
-            
-            // Check bounds
-            if (newIndex < -1 || newIndex >= appData.monthlyHistory.length) {
-                return;
-            }
-            
-            currentHistoryIndex = newIndex;
-            updateHistoryView();
-        }
-
-        function updateHistoryView() {
-            const prevBtn = document.getElementById('prevMonthBtn');
-            const nextBtn = document.getElementById('nextMonthBtn');
-            const monthDisplay = document.getElementById('currentMonthDisplay');
-            const content = document.getElementById('historyContent');
-            
-            // Update navigation buttons
-            prevBtn.disabled = currentHistoryIndex >= appData.monthlyHistory.length - 1;
-            nextBtn.disabled = currentHistoryIndex <= -1;
-            
-            if (currentHistoryIndex === -1) {
-                // Show current month
-                monthDisplay.innerHTML = 'Aktueller Monat <span class="history-badge">LIVE</span>';
-                displayMonthData(appData);
-            } else {
-                // Show historical month
-                const monthData = appData.monthlyHistory[appData.monthlyHistory.length - 1 - currentHistoryIndex];
-                const date = new Date(monthData.monthStart);
-                const monthName = date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-                monthDisplay.textContent = monthName;
-                displayMonthData(monthData);
-            }
-        }
-
-        function displayMonthData(data) {
-            const content = document.getElementById('historyContent');
-            
-            // Calculate standings
-            const standings = data.players.map(player => {
-                const playerEntries = data.entries.filter(e => e.player === player);
-                const total = playerEntries.reduce((sum, e) => sum + e.distance, 0);
-                const sessions = playerEntries.length;
-                return { player, total, sessions };
-            }).sort((a, b) => b.total - a.total);
-            
-            const teamTotal = standings.reduce((sum, p) => sum + p.total, 0);
-            const teamProgress = (teamTotal / data.goal) * 100;
-            const goalReached = teamTotal >= data.goal;
-            
-            // Display team stats
-            let html = `
-                <div style="background: ${goalReached ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : '#f8f9fa'}; 
-                            padding: 25px; border-radius: 15px; margin-bottom: 20px; color: ${goalReached ? 'white' : '#333'};">
-                    <h3 style="margin-bottom: 15px;">${goalReached ? '🏆 Ziel erreicht!' : '📊 Team-Statistik'}</h3>
-                    <div style="font-size: 1.2em; margin-bottom: 10px;">
-                        <strong>${(teamTotal / 1000).toFixed(1)} / ${data.goal / 1000} km</strong> (${teamProgress.toFixed(0)}%)
-                    </div>
-                    <div class="progress-bar" style="background: ${goalReached ? 'rgba(255,255,255,0.3)' : '#e0e0e0'};">
-                        <div class="progress-fill" style="width: ${Math.min(teamProgress, 100)}%; background: ${goalReached ? 'white' : 'linear-gradient(90deg, #667eea, #764ba2)'}">
-                            ${teamProgress.toFixed(0)}%
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Display contribution chart
-            html += '<div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">';
-            html += '<h3 style="color: #667eea; margin-bottom: 15px;">📊 Beiträge zum Team-Ziel</h3>';
-            html += '<div class="contribution-bar-container">';
-            
-            standings.forEach(player => {
-                const percentage = teamTotal > 0 ? (player.total / teamTotal * 100) : 0;
-                if (percentage > 0) {
-                    const color = data.playerColors[player.player] || '#667eea';
-                    html += `
-                        <div class="contribution-segment" 
-                             style="width: ${percentage}%; background: ${color}"
-                             title="${player.player}: ${(player.total / 1000).toFixed(1)} km (${percentage.toFixed(1)}%)">
-                            ${percentage >= 10 ? player.player : ''}
-                        </div>
-                    `;
-                }
-            });
-            html += '</div>';
-            
-            html += '<div class="contribution-legend">';
-            standings.forEach(player => {
-                const percentage = teamTotal > 0 ? (player.total / teamTotal * 100) : 0;
-                const color = data.playerColors[player.player] || '#667eea';
-                html += `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: ${color}"></div>
-                        <div class="legend-text">
-                            <div class="legend-name">${player.player}</div>
-                            <div class="legend-value">${(player.total / 1000).toFixed(1)} km (${percentage.toFixed(1)}%)</div>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div></div>';
-            
-            // Display leaderboard
-            html += '<h3 style="color: #667eea; margin: 20px 0 15px 0;">🏆 Rangliste</h3>';
-            const medals = ['🥇', '🥈', '🥉'];
-            
-            standings.forEach((player, index) => {
-                const rankClass = index < 3 ? `rank-${index + 1}` : '';
-                html += `
-                    <div class="leaderboard-item ${rankClass}" style="margin-bottom: 15px;">
-                        <span class="rank-badge">${index < 3 ? medals[index] : `#${index + 1}`}</span>
-                        <div class="player-info">
-                            <div class="player-name">${player.player}</div>
-                            <div class="player-stats">
-                                <span class="stat">📏 ${(player.total / 1000).toFixed(1)} km</span>
-                                <span class="stat">🎯 ${player.sessions} Sessions</span>
-                                <span class="stat">📊 ${player.sessions > 0 ? (player.total / player.sessions / 1000).toFixed(1) : 0} km/Session</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            content.innerHTML = html;
-        }
-
-        function resetMonthData() {
             appData.entries = [];
             appData.monthStart = new Date().toISOString();
-            generateWeeklyChallenges();
+            saveDataToFirebase();
+            showNotification('Neuer Monat gestartet! Viel Erfolg! 🚀');
         }
 
         function showNotification(message) {
@@ -1506,20 +1195,6 @@
             }, 3000);
         }
 
-        function showBadgePopup(achievement) {
-            document.getElementById('badgeIcon').textContent = achievement.icon;
-            document.getElementById('badgeTitle').textContent = achievement.title;
-            document.getElementById('badgeDesc').textContent = achievement.desc;
-            
-            document.getElementById('overlay').classList.add('show');
-            document.getElementById('badgePopup').classList.add('show');
-        }
-
-        function closeBadgePopup() {
-            document.getElementById('overlay').classList.remove('show');
-            document.getElementById('badgePopup').classList.remove('show');
-        }
-
         function showTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
@@ -1527,24 +1202,20 @@
             event.target.classList.add('active');
             document.getElementById(tabName).classList.add('active');
             
-            if (tabName === 'achievements') updateAchievements();
             if (tabName === 'settings') updatePlayersList();
-            if (tabName === 'history') {
-                currentHistoryIndex = -1;
-                updateHistoryView();
-            }
         }
 
         function updateAllViews() {
             updateLeaderboard();
-            updateAchievements();
-            updateChallenges();
             updateRecentEntries();
             updateTimeRemaining();
         }
 
         // Initialize
-        loadData();
+        if (!checkFirebaseConfig()) {
+            document.getElementById('setupScreen').style.display = 'block';
+        }
+        
         setInterval(updateTimeRemaining, 60000);
     </script>
 </body>
