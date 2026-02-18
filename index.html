@@ -18,7 +18,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8B7E9B 0%, #6B5E7A 100%); /* Lilac gradient */
             min-height: 100vh;
             padding: 20px;
             color: #333;
@@ -39,7 +39,7 @@
         }
 
         h1 {
-            color: #667eea;
+            color: #8B7E9B; /* Lilac */
             font-size: 2.5em;
             margin-bottom: 10px;
         }
@@ -57,25 +57,25 @@
         }
 
         .sync-status.online {
-            background: #d4edda;
-            color: #155724;
+            background: #d4f1e8; /* Light Cobalt Green tint */
+            color: #2d5a52;
         }
 
         .sync-status.syncing {
-            background: #fff3cd;
-            color: #856404;
+            background: #f5e6d3; /* Light Maple tint */
+            color: #6C4F3D;
         }
 
         .sync-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #28a745;
+            background: #5C8D89; /* Cobalt Green */
             animation: pulse 2s infinite;
         }
 
         .sync-dot.syncing {
-            background: #ffc107;
+            background: #8B6F47; /* Maple */
             animation: pulse 0.8s infinite;
         }
 
@@ -94,7 +94,7 @@
         }
 
         .goal-box {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #8B7E9B, #6B5E7A); /* Lilac gradient */
             color: white;
             padding: 15px 30px;
             border-radius: 15px;
@@ -130,10 +130,10 @@
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #8B7E9B, #6B5E7A); /* Lilac gradient */
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(139, 126, 155, 0.4);
         }
 
         .content {
@@ -174,11 +174,11 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #8B7E9B; /* Lilac */
         }
 
         button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #8B7E9B, #6B5E7A); /* Lilac gradient */
             color: white;
             padding: 15px 30px;
             border: none;
@@ -192,7 +192,7 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(139, 126, 155, 0.4);
         }
 
         button:disabled {
@@ -271,7 +271,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #5C8D89, #4A7773); /* Cobalt Green gradient */
             transition: width 0.5s ease;
             display: flex;
             align-items: center;
@@ -342,6 +342,171 @@
             color: #666;
         }
 
+        /* Animated Rowing Lanes */
+        .rowing-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .rowing-lane {
+            position: relative;
+            height: 80px;
+            background: linear-gradient(to right, #f0f0f0 0%, #e8e8e8 100%);
+            border-radius: 40px;
+            margin: 15px 0;
+            overflow: visible;
+            transition: all 0.5s ease;
+            border: 2px solid #ddd;
+        }
+
+        .lane-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.02) 10px,
+                rgba(0,0,0,0.02) 20px
+            );
+            border-radius: 40px;
+        }
+
+        .lane-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(92, 141, 137, 0.3), rgba(74, 119, 115, 0.3));
+            border-radius: 40px;
+            transition: width 1s ease-out;
+            z-index: 1;
+        }
+
+        .rower-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0%;
+            transition: left 1s ease-out;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rower {
+            width: 60px;
+            height: 60px;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: rowAnimation 1s ease-in-out;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .rower.rowing {
+            animation: rowAnimation 0.6s ease-in-out;
+        }
+
+        @keyframes rowAnimation {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-3px) rotate(-2deg); }
+            75% { transform: translateX(3px) rotate(2deg); }
+        }
+
+        .player-label {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rank-medal {
+            font-size: 1.3em;
+            animation: medalFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes medalFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .distance-label {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #5C8D89;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #333 0px,
+                #333 10px,
+                white 10px,
+                white 20px
+            );
+            z-index: 4;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+        }
+
+        .racing-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .racing-header h3 {
+            color: #8B7E9B;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .goal-marker {
+            position: absolute;
+            right: 20px;
+            top: -30px;
+            font-size: 2em;
+            z-index: 2;
+        }
+
+        /* Overtaking animation */
+        @keyframes overtake {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.15); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+
+        .overtaking {
+            animation: overtake 0.6s ease-in-out;
+        }
+
         .history-list {
             margin-top: 20px;
         }
@@ -400,7 +565,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #5C8D89, #4A7773); /* Cobalt Green */
             color: white;
             padding: 20px 30px;
             border-radius: 15px;
@@ -475,7 +640,7 @@
         }
 
         .modal-close {
-            background: #ff6b6b;
+            background: #A8333C; /* Eugenia Red */
             color: white;
             border: none;
             width: 35px;
@@ -499,7 +664,7 @@
         }
 
         .delete-btn {
-            background: #ff6b6b;
+            background: #A8333C; /* Eugenia Red */
             color: white;
             border: none;
             padding: 8px 15px;
@@ -511,7 +676,7 @@
         }
 
         .delete-btn:hover {
-            background: #ff5252;
+            background: #8E2932; /* Darker Eugenia Red */
         }
 
         .setup-container {
@@ -528,7 +693,7 @@
         }
 
         .setup-step h3 {
-            color: #667eea;
+            color: #8B7E9B; /* Lilac */
             margin-bottom: 10px;
         }
 
@@ -569,7 +734,7 @@
 </head>
 <body>
     <div id="setupScreen" class="setup-container">
-        <h1 style="text-align: center; color: #667eea; margin-bottom: 20px;">🚣 Firebase Setup erforderlich</h1>
+        <h1 style="text-align: center; color: #8B7E9B; margin-bottom: 20px;">🚣 Firebase Setup erforderlich</h1>
         
         <div class="warning-box">
             <strong>⚠️ Achtung:</strong> Die Firebase-Konfiguration ist noch nicht eingetragen!
@@ -649,6 +814,15 @@
             </div>
         </div>
 
+        <!-- Animated Rowing Lanes -->
+        <div class="rowing-container" id="rowingLanes">
+            <div class="racing-header">
+                <h3>🏁 Live-Rennen</h3>
+                <p style="color: #666;">Wer erreicht das Ziel zuerst?</p>
+            </div>
+            <div id="lanesContainer"></div>
+        </div>
+
         <div class="tabs">
             <button class="tab active" onclick="showTab('entry')">📝 Eintragen</button>
             <button class="tab" onclick="showTab('leaderboard')">🏆 Rangliste</button>
@@ -674,14 +848,14 @@
             <button onclick="addDistance()">🚣 Strecke hinzufügen</button>
 
             <div class="history-list" id="recentEntries">
-                <h3 style="margin-top: 30px; color: #667eea;">Letzte Einträge</h3>
+                <h3 style="margin-top: 30px; color: #8B7E9B;">Letzte Einträge</h3>
             </div>
         </div>
 
         <div id="leaderboard" class="content">
             <h2>🏆 Aktuelle Rangliste</h2>
             <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">📊 Team-Beiträge zum Gesamtziel</h3>
+                <h3 style="color: #8B7E9B; margin-bottom: 15px;">📊 Team-Beiträge zum Gesamtziel</h3>
                 <div id="contributionChart"></div>
             </div>
             <div class="leaderboard" id="leaderboardContent"></div>
@@ -689,7 +863,7 @@
 
         <div id="settings" class="content">
             <div class="settings-section" style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">Challenge-Einstellungen</h3>
+                <h3 style="color: #8B7E9B; margin-bottom: 15px;">Challenge-Einstellungen</h3>
                 <div class="input-group">
                     <label for="goalInput">Gemeinsames Team-Ziel pro Monat (km):</label>
                     <input type="number" id="goalInput" value="90" min="1" step="5">
@@ -701,7 +875,7 @@
             </div>
 
             <div class="settings-section" style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">Teilnehmer verwalten</h3>
+                <h3 style="color: #8B7E9B; margin-bottom: 15px;">Teilnehmer verwalten</h3>
                 <div class="input-group">
                     <label for="newPlayerInput">Neuen Teilnehmer hinzufügen:</label>
                     <input type="text" id="newPlayerInput" placeholder="Name eingeben">
@@ -711,9 +885,9 @@
             </div>
 
             <div class="settings-section">
-                <h3 style="color: #667eea; margin-bottom: 15px;">Challenge zurücksetzen</h3>
+                <h3 style="color: #8B7E9B; margin-bottom: 15px;">Challenge zurücksetzen</h3>
                 <p style="color: #666; margin-bottom: 15px;">Startet eine neue Challenge. Alle Daten werden gelöscht!</p>
-                <button onclick="resetMonth()" style="background: #ff6b6b;">Neuen Monat starten</button>
+                <button onclick="resetMonth()" style="background: linear-gradient(135deg, #A8333C, #8E2932);">Neuen Monat starten</button>
             </div>
         </div>
     </div>
@@ -748,18 +922,18 @@
         let database = null;
         
         const PRESET_COLORS = [
-            { name: 'Lila', value: '#667eea' },
-            { name: 'Pink', value: '#f093fb' },
-            { name: 'Türkis', value: '#4facfe' },
-            { name: 'Grün', value: '#43e97b' },
-            { name: 'Orange', value: '#fa709a' },
-            { name: 'Blau', value: '#30cfd0' },
-            { name: 'Rot', value: '#ff6b6b' },
-            { name: 'Gold', value: '#f9ca24' },
-            { name: 'Mint', value: '#55efc4' },
-            { name: 'Lavendel', value: '#a29bfe' },
-            { name: 'Koralle', value: '#ff7675' },
-            { name: 'Smaragd', value: '#00b894' }
+            { name: '鳩羽紫 (Lilac)', value: '#8B7E9B' },
+            { name: '青磁色 (Cobalt Green)', value: '#5C8D89' },
+            { name: '浅緋 (Eugenia Red)', value: '#A8333C' },
+            { name: '幹色 (Maple)', value: '#8B6F47' },
+            { name: '藤紫', value: '#A59ACA' },
+            { name: '若竹色', value: '#68BE8D' },
+            { name: '蘇芳', value: '#8E3B46' },
+            { name: '焦茶', value: '#6C4F3D' },
+            { name: '紅藤', value: '#CCA3BA' },
+            { name: '白緑', value: '#C7DC68' },
+            { name: '茜色', value: '#B7282E' },
+            { name: '利休茶', value: '#5D4C41' }
         ];
 
         let appData = {
@@ -773,6 +947,9 @@
         let tempPlayerName = '';
         let selectedColor = '';
         let currentTab = 'entry'; // Track current tab
+        let animationQueue = []; // Queue for sequential animations
+        let isAnimating = false; // Track if animation is in progress
+        let previousRankings = {}; // Track previous positions for overtake detection
 
         // Check if Firebase config is set
         function isFirebaseConfigured() {
@@ -814,6 +991,7 @@
         }
 
         let isInitialLoad = true;
+        let hasAnimatedInitial = false; // Track if we've done initial animation
 
         function loadDataFromFirebase() {
             const dataRef = database.ref('challengeData');
@@ -850,6 +1028,14 @@
                 // Update UI
                 updatePlayerSelect();
                 updateAllViews();
+                
+                // Animate initial load only once
+                if (isInitialLoad && !hasAnimatedInitial && appData.entries.length > 0) {
+                    setTimeout(() => {
+                        animateInitialLoad();
+                        hasAnimatedInitial = true;
+                    }, 500);
+                }
                 
                 // Show notification for updates (except on initial load)
                 if (!isInitialLoad) {
@@ -970,6 +1156,15 @@
             
             appData.entries.push(entry);
             saveDataToFirebase();
+            
+            // Trigger rowing animation for this specific entry
+            setTimeout(() => {
+                animationQueue.push({
+                    player: player,
+                    distance: distance
+                });
+                processAnimationQueue();
+            }, 300);
             
             distanceInput.value = '';
             // Reset date to today
@@ -1214,7 +1409,7 @@
                             <strong>${entry.player}</strong><br>
                             <span style="font-size: 0.9em; color: #666;">${dateStr} um ${timeStr}</span>
                         </div>
-                        <div style="font-size: 1.2em; font-weight: bold; color: #667eea;">
+                        <div style="font-size: 1.2em; font-weight: bold; color: #8B7E9B;">
                             ${(entry.distance / 1000).toFixed(1)} km
                         </div>
                     </div>
@@ -1329,6 +1524,7 @@
             updateLeaderboard();
             updateRecentEntries();
             updateTimeRemaining();
+            updateRowingLanes(); // Add rowing lanes update
             
             // Maintain current tab after update
             if (currentTab === 'settings') {
@@ -1349,6 +1545,128 @@
                     }
                 });
             }
+        }
+
+        function updateRowingLanes() {
+            const container = document.getElementById('lanesContainer');
+            if (!container) return;
+
+            // Get current standings
+            const standings = appData.players.map(player => {
+                const stats = getPlayerStats(player);
+                return { player, total: stats.total };
+            }).sort((a, b) => b.total - a.total);
+
+            // Detect position changes
+            const newRankings = {};
+            standings.forEach((data, index) => {
+                newRankings[data.player] = index;
+            });
+
+            // Check for overtakes
+            const overtakes = [];
+            Object.keys(previousRankings).forEach(player => {
+                const oldRank = previousRankings[player];
+                const newRank = newRankings[player];
+                if (newRank !== undefined && oldRank !== undefined && newRank < oldRank) {
+                    overtakes.push(player);
+                }
+            });
+
+            previousRankings = {...newRankings};
+
+            // Create or update lanes
+            container.innerHTML = '';
+            
+            standings.forEach((data, index) => {
+                const color = appData.playerColors[data.player] || '#8B7E9B';
+                const progress = Math.min((data.total / appData.goal) * 100, 100);
+                const medal = getMedalForRank(index);
+                const isOvertaking = overtakes.includes(data.player);
+
+                const lane = document.createElement('div');
+                lane.className = 'rowing-lane';
+                lane.style.order = index;
+                
+                lane.innerHTML = `
+                    <div class="lane-background"></div>
+                    <div class="lane-progress" style="width: ${progress}%; background: linear-gradient(90deg, ${color}33, ${color}55);"></div>
+                    <div class="finish-line"></div>
+                    <div class="goal-marker">🏁</div>
+                    <div class="rower-container" style="left: ${Math.min(progress, 95)}%;">
+                        <div class="rower ${isOvertaking ? 'overtaking' : ''}" style="color: ${color};">🚣</div>
+                        <div class="player-label" style="border-left: 4px solid ${color};">
+                            <span class="rank-medal">${medal}</span>
+                            <span>${data.player}</span>
+                        </div>
+                    </div>
+                    <div class="distance-label">${(data.total / 1000).toFixed(1)} km</div>
+                `;
+                
+                container.appendChild(lane);
+            });
+
+            // Add rowing animation to the rower element if data changed
+            setTimeout(() => {
+                document.querySelectorAll('.rower').forEach(rower => {
+                    rower.classList.add('rowing');
+                    setTimeout(() => rower.classList.remove('rowing'), 600);
+                });
+            }, 100);
+        }
+
+        function getMedalForRank(rank) {
+            const medals = ['🥇', '🥈', '🥉'];
+            return medals[rank] || `#${rank + 1}`;
+        }
+
+        // Animate rowing for a specific player
+        function animateRowing(playerName, newDistance) {
+            const rowerContainer = Array.from(document.querySelectorAll('.player-label'))
+                .find(el => el.textContent.includes(playerName))
+                ?.closest('.rower-container');
+            
+            if (rowerContainer) {
+                const rower = rowerContainer.querySelector('.rower');
+                rower.classList.add('rowing');
+                setTimeout(() => rower.classList.remove('rowing'), 600);
+            }
+        }
+
+        // Process animation queue sequentially
+        function processAnimationQueue() {
+            if (isAnimating || animationQueue.length === 0) return;
+            
+            isAnimating = true;
+            const animation = animationQueue.shift();
+            
+            // Perform the animation
+            animateRowing(animation.player, animation.distance);
+            
+            // Wait for animation to complete
+            setTimeout(() => {
+                isAnimating = false;
+                processAnimationQueue();
+            }, 800);
+        }
+
+        // Initial animation of all entries on load
+        function animateInitialLoad() {
+            if (!appData.entries || appData.entries.length === 0) return;
+
+            // Sort entries by timestamp
+            const sortedEntries = [...appData.entries].sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Add each entry to animation queue
+            sortedEntries.forEach((entry, index) => {
+                setTimeout(() => {
+                    animationQueue.push({
+                        player: entry.player,
+                        distance: entry.distance
+                    });
+                    processAnimationQueue();
+                }, index * 100); // Stagger the queue additions
+            });
         }
 
         // Initialize
